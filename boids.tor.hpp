@@ -149,7 +149,7 @@ double radius_boid(int h){
 
         m_boids.push_back(Boid(x_, y_, v_x_, v_y_, alpha_));
         m_evolve.push_back(Boid(0., 0., 0., 0., 0.));
-        std::cout << "fine ciclo numero" << i <<'\n';
+        std::cout << "fine ciclo numero " << i <<'\n';
     }
   }
   void evolve(double const& s, double const& a,double const& c) {  // calcola valore degli elementi di m_evolve,
