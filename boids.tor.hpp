@@ -1,9 +1,11 @@
 #ifndef BOIDS_TOR_HPP
 #define BOIDS_TOR_HPP
+#define _USE_MATH_DEFINES
  
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
  
@@ -13,6 +15,14 @@ struct Boid {
   double v_x;
   double v_y;
   double alpha; 
+
+  Boid(double x_, double y_, double v_x_, double v_y_, double alpha_){
+    x = x_;
+    y = y_;
+    v_x = v_x_;
+    v_y = v_y_;
+    alpha = alpha_;
+  }
 };
  
 class Boids {
@@ -124,16 +134,22 @@ double radius_boid(int h){
   void create_boids(int const& n){
     for (int i=0; i<n; i++){
         double radius_i = round(30 + static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (300))));
+        std::cout << "radius_i settato"<< '\n';
         double alpha_ = round(static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (2 * M_PI))));
-
+        std::cout << "alpha settato"<< '\n';
         double x_ = radius_i * cos(alpha_);
+        std::cout << "x settato"<< '\n';
         double y_ = radius_i * sin(alpha_);
+        std::cout << "y settato"<< '\n';
 
         double v_x_ = round(-15 + static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (15))));
+        std::cout << "v_x settato"<< '\n';
         double v_y_ = round(-15 + static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (15))));
+        std::cout << "v_y settato"<< '\n';
 
-        m_boids[i] = {x_, y_, v_x_, v_y_, alpha_};
-        m_evolve[i] = {0., 0., 0., 0., 0.};
+        m_boids.push_back(Boid(x_, y_, v_x_, v_y_, alpha_));
+        m_evolve.push_back(Boid(0., 0., 0., 0., 0.));
+        std::cout << "fine ciclo numero" << i <<'\n';
     }
   }
   void evolve(double const& s, double const& a,double const& c) {  // calcola valore degli elementi di m_evolve,

@@ -14,7 +14,9 @@ int main() {
     throw std::runtime_error{"The number of boids inserted is not valid"};
   }
   Boids simulation;
+  std::cout << "sto creando i boids"<< '\n';
   simulation.create_boids(n);
+  std::cout << "boids creati"<< '\n';
   double s;
   double a;
   double c;
