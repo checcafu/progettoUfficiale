@@ -1,5 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "boid.hpp"
+#include "boids.tor.hpp"
  
 #include "doctest.h"
  
