@@ -36,6 +36,8 @@ struct Boid {  //definisce un boid, che è caratterizzato dalla posizione e dall
     return sqrt(pow(m_boids[i].v_x, 2) + pow(m_boids[i].v_y, 2));
   }
 
+  int size() { return m_boids.size(); }
+
   void radius_boid(int h){
     for(int h = 0; h < (int)m_boids.size(); h++){
         m_evolve[h].radius += sqrt(pow(m_boids[h].x,2) + pow(m_boids[h].y,2));
@@ -45,7 +47,7 @@ struct Boid {  //definisce un boid, che è caratterizzato dalla posizione e dall
   void separation(int const& i,double const& s) {  // calcolo dell'effetto di separazione sulla velocità
     double sum_x;
     double sum_y;
-    for (int j = 0; j < (int)m_boids.size(); j++) {
+    for (int j = 0; j < size(); j++) {
       if (i != j && distance(i, j) < 50 && angle(i, j) < 1.04) {  // 1.04 rad, circa 60°
         sum_x += signeddistance(j, i, 1, 0);
         sum_y += signeddistance(j, i, 0, 1);
@@ -59,7 +61,7 @@ struct Boid {  //definisce un boid, che è caratterizzato dalla posizione e dall
     double sum_v_x;
     double sum_v_y;
     int counter;
-    for (int j = 0; j < (int)m_boids.size(); j++) {
+    for (int j = 0; j < size(); j++) {
       if (i != j && distance(i, j) < 150 && angle(i, j) < 1.04) {
         sum_v_x += m_boids[j].v_x;
         sum_v_y += m_boids[j].v_y;
@@ -76,7 +78,7 @@ struct Boid {  //definisce un boid, che è caratterizzato dalla posizione e dall
     double center_mass_x;
     double center_mass_y;
     int counter;
-    for (int j = 0; j < (int)m_boids.size(); j++) {
+    for (int j = 0; j < size(); j++) {
       if (i != j && distance(i, j) < 150 && angle(i, j) < 1.04) {
         center_mass_x += m_boids[j].x;
         center_mass_y += m_boids[j].y;
@@ -93,7 +95,8 @@ struct Boid {  //definisce un boid, che è caratterizzato dalla posizione e dall
 
     public:
     void create_boids(int const& n){
-    for (int i=0; i<n; i++){ //ma è utile questo for?
+      srand(static_cast<unsigned>(time(0)));
+      for (int i=0; i<n; i++){ //ma è utile questo for?
         double radius_ = round(30 + static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (300))));
         double alpha = round(static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (2 * M_PI))));
         double x_ = radius_ * cos(alpha);
@@ -108,10 +111,8 @@ struct Boid {  //definisce un boid, che è caratterizzato dalla posizione e dall
         }
     }
 
-    void evolve(double const& s, double const& a, double const& c){  // calcola valore degli elementi di m_evolve,
-    // ovvero di quanto
-    // varia la velocità ogni secondo, usando i metodi privati
-    for (int i = 0; i < (int)m_boids.size(); i++) {
+    void evolve(double const& s, double const& a, double const& c){  // calcola valore degli elementi di m_evolve, ovvero di quanto varia la velocità ogni secondo, usando i metodi privati
+    for (int i = 0; i < size(); i++) {
        separation(i, s);
        alignment(i, a);
        cohesion(i, c);
@@ -119,27 +120,30 @@ struct Boid {  //definisce un boid, che è caratterizzato dalla posizione e dall
     }
   }
 
-  void apply_evolve() {  // applica i cambiamenti di m_evolve in modo da far
-                         // avanzare il sistema di 1 secondo
+  void apply_evolve() {  // applica i cambiamenti di m_evolve in modo da far avanzare il sistema di 1 secondo
     for (int i = 0; i < (int)m_boids.size(); i++) {
       m_boids[i].v_x += m_evolve[i].v_x;
       m_boids[i].v_y += m_evolve[i].v_y;
       m_boids[i].radius+= m_evolve[i].radius;
       
       if (m_boids[i].radius<40) {  //se boid si trova vicino a bordi si crea velocità che lo respinge
-        m_boids[i].v_x *= (m_boids[i].x / 20 - 1);
+         m_boids[i].radius = 40;
+         m_boids[i].v_x = abs(m_boids[i].v_x);
       } else if (m_boids[i].radius<290) {
-        m_boids[i].v_x *= (m_boids[i].x / (-20) + 24);
+         m_boids[i].radius = 290;
+         m_boids[i].v_x = -abs(m_boids[i].v_x);
       }
       if (m_boids[i].radius<40) {
-        m_boids[i].v_y *= (m_boids[i].y / 20 - 1);
+         m_boids[i].radius = 40;
+         m_boids[i].v_x = abs(m_boids[i].v_x);
       } else if (m_boids[i].radius<290) {
-        m_boids[i].v_x *= (m_boids[i].y / (-20) + 24);
+        m_boids[i].radius = 290;
+        m_boids[i].v_x = -abs(m_boids[i].v_x);
       }
 
       if (speed(i) > 10) {
-        m_boids[i].v_x = 15 * m_boids[i].v_x / speed(i);
-        m_boids[i].v_y = 15 * m_boids[i].v_y / speed(i);
+        m_boids[i].v_x = 10 * m_boids[i].v_x / speed(i);
+        m_boids[i].v_y = 10 * m_boids[i].v_y / speed(i);
       }
       m_boids[i].x += m_evolve[i].v_x * 1;  // dt=1
       m_boids[i].y += m_evolve[i].v_x * 1;
@@ -149,6 +153,7 @@ struct Boid {  //definisce un boid, che è caratterizzato dalla posizione e dall
      // annulla ciò che si è fatto in modo da poter eseguire da capo per il secondo successivo
     }
   }
+
   double meanspeed() {
     double meanspeed;
     for (int i = 0; i < (int)m_boids.size(); i++) {
@@ -167,45 +172,61 @@ struct Boid {  //definisce un boid, che è caratterizzato dalla posizione e dall
         sqrt((meansquaredspeed - pow(meanspeed(), 2)) / (m_boids.size() - 1));
     return stdspeed;
   }
+  double meanspeed() {
+    double meanspeed;
+    for (int i = 0; i < size(); i++) {
+      meanspeed += speed(i);
+    }
+    return meanspeed / size();
+  }
+  double stdmeanspeed() {
+    double meansquaredspeed;
+    double stdspeed;
+    for (int i = 0; i < size(); i++) {
+      meansquaredspeed += pow(speed(i), 2);
+    }
+    meansquaredspeed /= size();
+    stdspeed = sqrt((meansquaredspeed - pow(meanspeed(), 2)) / (size() - 1));
+    return stdspeed;
+  }
   double meandistance() {
     double meandist;
-    for (int i = 0; i < (int)m_boids.size(); i++) {
-      for (int j = 0; j < (int)m_boids.size(); j++) {
+    for (int i = 0; i < size(); i++) {
+      for (int j = 0; j < size(); j++) {
         meandist += distance(i, j);
       }
     }
-    meandist /= ((m_boids.size() - 1) * m_boids.size());
+    meandist /= ((size() - 1) * size());
     return meandist;
   }
   double stdmeandistance() {
     double meansquareddist;
     double stddist;
-    for (int i = 0; i < (int)m_boids.size(); i++) {
-      for (int j = 0; j < (int)m_boids.size(); j++) {
+    for (int i = 0; i < size(); i++) {
+      for (int j = 0; j < size(); j++) {
         meansquareddist += pow(distance(i, j), 2);
       }
     }
-    if (m_boids.size() > 2) {
-      meansquareddist /= ((m_boids.size() - 1) * m_boids.size());
+    if (size() > 2) {
+      meansquareddist /= ((size() - 1) * size());
       stddist = sqrt((meansquareddist - pow(meandistance(), 2)) /
-                     (((m_boids.size() - 1) * m_boids.size()) / 2 - 1));
+                     (((size() - 1) * size()) / 2 - 1));
       return stddist;
     } else {
       return 0;
     }
   }
-  //serve a visualizzare i cambiamenti(non ancora chiamata)
   double maxdistance() {
     double maxdist;
-    for (int i = 0; i < (int)m_boids.size(); i++) {
-      for (int j = 0; j < (int)m_boids.size(); j++) {
+    for (int i = 0; i < size(); i++) {
+      for (int j = 0; j < size(); j++) {
         if (maxdist < distance(i, j)) {
           maxdist = distance(i, j);
         }
       }
     }
     return maxdist;
-  } 
-
- };  
-#endif 
+  }
+};
+ 
+#endif
